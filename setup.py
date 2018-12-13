@@ -18,6 +18,7 @@ setup(
     install_requires=[
         'django>=1.11.0',
         'djangorestframework',
+        'drftest',
     ],
     tests_require=['Django>=1.8'],
     long_description=README,
