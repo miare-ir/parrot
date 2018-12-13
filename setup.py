@@ -20,7 +20,6 @@ setup(
         'djangorestframework',
         'drftest',
     ],
-    tests_require=['Django>=1.8'],
     long_description=README,
     url='https://github.com/miare-ir/parrot',
     author='Miare',

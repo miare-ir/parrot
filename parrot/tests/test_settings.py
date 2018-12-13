@@ -5,6 +5,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'parrot',
     'drftest',
 )
@@ -17,3 +18,7 @@ DATABASES = {
 SECRET_KEY = "Dummy"
 TEST_RUNNER = 'drftest.TestRunner'
 ROOT_URLCONF = 'parrot.tests.test_urls'
+DRF_TEST_AUTH_PROVIDER_CLASS = 'parrot.token_auth_provider.TokenAuthProvider'
+PARROT_LISTENER_HOST = 'http://localhost:8111'
+PARROT_NAMESPACE = 'parrot'
+
