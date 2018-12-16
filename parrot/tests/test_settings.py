@@ -22,3 +22,11 @@ DRF_TEST_AUTH_PROVIDER_CLASS = 'parrot.token_auth_provider.TokenAuthProvider'
 PARROT_LISTENER_HOST = 'http://localhost:8111'
 PARROT_NAMESPACE = 'parrot'
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+}

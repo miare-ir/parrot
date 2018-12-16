@@ -32,10 +32,11 @@ class BulkRequestView(APIView):
         for log_data in request.data:
             try:
                 serializer = RequestLogSerializer(data=log_data)
-                if CapturedRequest.objects.filter(id=serializer.validated_data['id']).exists():
+                pk = serializer.validated_data['id']
+                if CapturedRequest.objects.filter(request_id=pk).exists():
                     continue
                 log = serializer.save()
-                captured_request = CapturedRequest.objects.create(request=log)
+                captured_request = CapturedRequest.objects.create(request_id=log.id)
                 response = self._replay(log)
                 captured_request.response_status = response.status_code
                 if response.data:

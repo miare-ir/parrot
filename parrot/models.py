@@ -56,8 +56,7 @@ class ReplayedRequest(models.Model):
 
 
 class CapturedRequest(models.Model):
-    request = models.OneToOneField(
-        'parrot.RequestLog', on_delete=models.CASCADE, related_name='captured')
+    request_id = models.UUIDField()
     response_status = models.IntegerField(null=True, blank=True)
     response_body = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
