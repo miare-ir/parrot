@@ -26,9 +26,10 @@ variables:
 
 stages:
 - test
+- deploy
 
 test:
-  stage: offline_test
+  stage: test
   script:
   - apt-get update
   - apt-get install -y binutils libproj-dev python3-pip
@@ -40,3 +41,16 @@ test:
   - flake8
   - cd src
   - python3 manage.py test -v 3
+
+
+deploy:
+  stage: deploy
+  variables:
+    TWINE_USERNAME: $PYPI_USERNAME
+    TWINE_PASSWORD: $PYPI_PASSWORD
+  script:
+    - pip install twine
+    - python setup.py sdist
+    - twine upload dist/*
+  only:
+    - tags
