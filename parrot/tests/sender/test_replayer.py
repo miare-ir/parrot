@@ -52,6 +52,22 @@ class ReplayerTest(BaseViewTest):
     def _get_view_class(self):
         return RecordView
 
+    def test_serializing_ids(self, mocked_post, *_):
+        user_id = uuid.uuid4()
+        for i in range(15):
+            RequestLog.objects.create(
+                user_id=user_id,
+                path='/dummy/',
+                data={'a': 'b'},
+                method=HttpMethod.POST.value,
+            )
+        replayer.replay()
+        self.assertEqual(mocked_post.call_count, 2)
+        args, kwargs = mocked_post.call_args_list[0]
+        self.assertEqual(len(kwargs['json']), 10)
+        for log_data in kwargs['json']:
+            self.assertIsNotNone(log_data.get('id'))
+
     def test_default_batch_size(self, mocked_post, *_):
         user_id = uuid.uuid4()
         for i in range(15):

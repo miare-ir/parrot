@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Dict, Optional
 
 from django.urls import resolve
 from rest_framework import status
@@ -13,15 +14,20 @@ from parrot.serializers import RequestLogSerializer
 
 
 class BulkRequestView(APIView):
+    def _get_parsed_data(self, log: RequestLog) -> Optional[Dict]:
+        if not log.data:
+            return None
+        return json.loads('{}')
+
     def _build_request(self, log: RequestLog) -> Request:
         factory = APIRequestFactory()
         method = {
-            HttpMethod.POST: factory.post,
-            HttpMethod.PUT: factory.put,
-            HttpMethod.DELETE: factory.delete,
-            HttpMethod.PATCH: factory.patch,
+            HttpMethod.POST.value: factory.post,
+            HttpMethod.PUT.value: factory.put,
+            HttpMethod.DELETE.value: factory.delete,
+            HttpMethod.PATCH.value: factory.patch,
         }[log.method]
-        return method(log.path, data=log.data)
+        return method(log.path, data=self._get_parsed_data(log))
 
     def _replay(self, log: RequestLog) -> Response:
         request = self._build_request(log)
@@ -32,6 +38,7 @@ class BulkRequestView(APIView):
         for log_data in request.data:
             try:
                 serializer = RequestLogSerializer(data=log_data)
+                serializer.is_valid(raise_exception=True)
                 pk = serializer.validated_data['id']
                 if CapturedRequest.objects.filter(request_id=pk).exists():
                     continue
