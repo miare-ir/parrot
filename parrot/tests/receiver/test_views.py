@@ -1,10 +1,12 @@
+import datetime
 import uuid
-from traceback import print_exc
+from unittest import mock
+from unittest.mock import ANY
 
 from django.contrib.auth.models import User
-from django.db import transaction
 from django.test import override_settings
 from django.urls import reverse, path, include
+from django.utils import timezone
 from drftest import BaseViewTest
 from rest_framework import status
 from rest_framework.request import Request
@@ -30,7 +32,7 @@ class RecordView(ViewSet):
 urlpatterns = [
     path('prefix/', include('parrot.urls', namespace='parrot')),
     path(
-        'dummy/<str:pk>/',
+        'dummy/<int:pk>/',
         RecordView.as_view({'delete': 'handle_delete'}),
         name='dummy-with-pk',
     ),
@@ -63,9 +65,66 @@ class BulkRequestViewTest(BaseViewTest):
                 path='/dummy/',
                 data='{"a": "b"}',
                 method=HttpMethod.POST.value,
-            ) for _ in range(15)
+            ) for _ in range(3)
         ]
-        with transaction.atomic():
-            response = self._post_for_response(data=RequestLogSerializer(logs, many=True).data)
+        response = self._post_for_response(data=RequestLogSerializer(logs, many=True).data)
         self.assertSuccess(response)
-        self.assertEqual(15, CapturedRequest.objects.count())
+        self.assertEqual(3, CapturedRequest.objects.count())
+
+    @mock.patch.object(timezone, 'now', return_value=datetime.datetime.utcnow())
+    def test_response_is_captured_correctly_for_post(self, mocked_now, *_):
+        user_id = uuid.uuid4()
+        logs = [
+            RequestLog(
+                id=uuid.uuid4(),
+                user_id=user_id,
+                path='/dummy/',
+                data='{"a": "b"}',
+                method=HttpMethod.POST.value,
+            ),
+        ]
+        response = self._post_for_response(data=RequestLogSerializer(logs, many=True).data)
+        self.assertSuccess(response)
+        captured = CapturedRequest.objects.first()
+        self.assertIsNotNone(captured)
+        self.assertEqual(captured.response_status, status.HTTP_200_OK)
+        self.assertEqual(captured.response_body, '{"e": "f"}')
+        self.assertEqual(mocked_now.return_value, captured.created_at)
+
+    def test_response_is_captured_correctly_for_delete(self, *_):
+        user_id = uuid.uuid4()
+        logs = [
+            RequestLog(
+                id=uuid.uuid4(),
+                user_id=user_id,
+                path='/dummy/4/',
+                method=HttpMethod.DELETE.value,
+            ),
+        ]
+        response = self._post_for_response(
+            data=RequestLogSerializer(logs, many=True).data
+        )
+        self.assertSuccess(response)
+        captured = CapturedRequest.objects.first()
+        self.assertIsNotNone(captured)
+        self.assertEqual(captured.response_status, status.HTTP_200_OK)
+        self.assertEqual(captured.response_body, '{"c": "d"}')
+
+    @mock.patch.object(RecordView, 'handle_delete', return_value=Response())
+    def test_correct_path_params_are_passed_to_view(self, mocked_delete, *_):
+        user_id = uuid.uuid4()
+        logs = [
+            RequestLog(
+                id=uuid.uuid4(),
+                user_id=user_id,
+                path='/dummy/4/',
+                method=HttpMethod.DELETE.value,
+            ),
+        ]
+        response = self._post_for_response(
+            data=RequestLogSerializer(logs, many=True).data
+        )
+        self.assertSuccess(response)
+        captured = CapturedRequest.objects.first()
+        self.assertIsNotNone(captured)
+        mocked_delete.assert_called_with(ANY, pk=4)
