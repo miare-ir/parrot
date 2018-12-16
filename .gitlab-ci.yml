@@ -6,24 +6,6 @@ cache:
   key: "$CI_PROJECT_ID"
 
 
-variables:
-  # Django envs
-  DEBUG: "True"  # Double quotation is necessary or gitlab will consider the yaml as invalid
-  SECRET_KEY: thisisastrongsecretkeyiknow
-  POS_DB_DEFAULT_NAME: miarepos
-  POS_DB_DEFAULT_USER: miareadmin
-  POS_DB_DEFAULT_PASSWORD: miareadmin
-  POS_DB_DEFAULT_HOST: postgres
-  POS_DB_DEFAULT_PORT: 5432
-
-  # Postgres envs
-  POSTGRES_DB: miarepos
-  POSTGRES_USER: miareadmin
-  POSTGRES_PASSWORD: miareadmin
-  POSTGRES_HOST: 0.0.0.0
-  POSTGRES_PORT: 5432
-
-
 stages:
 - test
 - deploy
@@ -39,7 +21,6 @@ test:
   - . venv/miare-env/bin/activate
   - pip3 install -r requirements.txt
   - flake8
-  - cd src
   - python3 manage.py test -v 3
 
 
