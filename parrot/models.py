@@ -44,12 +44,11 @@ class RequestLog(models.Model):
     path = models.CharField(max_length=200)
     data = models.TextField(null=True, blank=True)
     method = models.CharField(max_length=10, choices=HttpMethod.choices())
-    sent = models.BooleanField(default=False)
-    received = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
 class ReplayedRequest(models.Model):
+    id = UUIDPrimaryKey()
     request = models.OneToOneField(
         'parrot.RequestLog', on_delete=models.CASCADE, related_name='replayed')
     created_at = models.DateTimeField(auto_now_add=True)
