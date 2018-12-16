@@ -13,9 +13,9 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from parrot.models import RequestLog, HttpMethod, CapturedRequest
-from parrot.receiver.views import BulkRequestView
-from parrot.serializers import RequestLogSerializer
+from django_parrot.models import RequestLog, HttpMethod, CapturedRequest
+from django_parrot.receiver.views import BulkRequestView
+from django_parrot.serializers import RequestLogSerializer
 
 
 class RecordView(ViewSet):
@@ -30,7 +30,7 @@ class RecordView(ViewSet):
 
 
 urlpatterns = [
-    path('prefix/', include('parrot.urls', namespace='parrot')),
+    path('prefix/', include('django_parrot.urls', namespace='parrot')),
     path(
         'dummy/<int:pk>/',
         RecordView.as_view({'delete': 'handle_delete'}),

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from parrot.receiver.views import BulkRequestView
+from django_parrot.receiver.views import BulkRequestView
 
 app_name = 'parrot'
 

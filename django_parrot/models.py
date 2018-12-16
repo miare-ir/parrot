@@ -50,7 +50,7 @@ class RequestLog(models.Model):
 class ReplayedRequest(models.Model):
     id = UUIDPrimaryKey()
     request = models.OneToOneField(
-        'parrot.RequestLog', on_delete=models.CASCADE, related_name='replayed')
+        'django_parrot.RequestLog', on_delete=models.CASCADE, related_name='replayed')
     created_at = models.DateTimeField(auto_now_add=True)
 
 

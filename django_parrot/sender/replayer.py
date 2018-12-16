@@ -4,8 +4,8 @@ import requests
 from django.conf import settings
 from django.urls import reverse
 
-from parrot.models import RequestLog, ReplayedRequest
-from parrot.serializers import RequestLogSerializer
+from django_parrot.models import RequestLog, ReplayedRequest
+from django_parrot.serializers import RequestLogSerializer
 
 
 def _get_batch_size() -> int:

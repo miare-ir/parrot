@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from parrot.models import RequestLog
+from django_parrot.models import RequestLog
 
 
 class RequestLogSerializer(serializers.ModelSerializer):

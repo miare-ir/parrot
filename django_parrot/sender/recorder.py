@@ -3,7 +3,7 @@ from typing import Optional
 
 from rest_framework.request import Request
 
-from parrot.models import RequestLog
+from django_parrot.models import RequestLog
 
 
 def _get_user_id(request: Request) -> Optional[str]:

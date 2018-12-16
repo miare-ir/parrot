@@ -10,8 +10,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from parrot.models import RequestLog, HttpMethod, ReplayedRequest
-from parrot.sender import recorder, replayer
+from django_parrot.models import RequestLog, HttpMethod, ReplayedRequest
+from django_parrot.sender import recorder, replayer
 
 
 class RecordView(ViewSet):
@@ -29,7 +29,7 @@ class RecordView(ViewSet):
 
 
 urlpatterns = [
-    path('prefix/', include('parrot.urls', namespace='parrot')),
+    path('prefix/', include('django_parrot.urls', namespace='parrot')),
     path(
         'dummy/<str:pk>/',
         RecordView.as_view({'delete': 'handle_delete'}),

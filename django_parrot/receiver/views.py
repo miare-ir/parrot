@@ -9,8 +9,8 @@ from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView
 
-from parrot.models import RequestLog, HttpMethod, CapturedRequest
-from parrot.serializers import RequestLogSerializer
+from django_parrot.models import RequestLog, HttpMethod, CapturedRequest
+from django_parrot.serializers import RequestLogSerializer
 
 
 class BulkRequestView(APIView):
