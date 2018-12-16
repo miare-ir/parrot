@@ -3,7 +3,7 @@ from typing import Optional
 
 from rest_framework.request import Request
 
-from parrot.models import RequestLog, QueryParams
+from parrot.models import RequestLog
 
 
 def _get_user_id(request: Request) -> Optional[str]:
@@ -20,7 +20,7 @@ def _get_path(request: Request) -> str:
     return path_with_query[:query_start]
 
 
-def _get_body(request: Request) -> Optional[str]:
+def _get_data(request: Request) -> Optional[str]:
     body = request.data
     if not body:
         return None
@@ -34,13 +34,7 @@ def record(request: Request):
     the_log = RequestLog.objects.create(
         user_id=_get_user_id(request),
         path=_get_path(request),
-        body=_get_body(request),
+        data=_get_data(request),
         method=request.method,
     )
-    for key, value in request.query_params.items():
-        QueryParams.objects.create(
-            request_log=the_log,
-            key=key,
-            value=value
-        )
     return the_log

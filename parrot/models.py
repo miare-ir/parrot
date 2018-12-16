@@ -16,14 +16,7 @@ class UUIDPrimaryKey(models.UUIDField):
         return uuid.uuid4()
 
 
-class HttpMethod(Enum):
-    GET = 'GET'
-    POST = 'POST'
-    DELETE = 'DELETE'
-    HEAD = 'HEAD'
-    PATCH = 'PATCH'
-    PUT = 'PUT'
-
+class CharFieldEnum(Enum):
     @classmethod
     def all(cls):
         return [an_enum for an_enum in cls]
@@ -38,18 +31,33 @@ class HttpMethod(Enum):
         return self.value
 
 
+class HttpMethod(CharFieldEnum):
+    POST = 'POST'
+    DELETE = 'DELETE'
+    PATCH = 'PATCH'
+    PUT = 'PUT'
+
+
 class RequestLog(models.Model):
     id = UUIDPrimaryKey()
     user_id = models.CharField(max_length=200, null=True, blank=True)
     path = models.CharField(max_length=200)
-    body = models.TextField(null=True, blank=True)
+    data = models.TextField(null=True, blank=True)
     method = models.CharField(max_length=10, choices=HttpMethod.choices())
-    replayed = models.BooleanField(default=False)
+    sent = models.BooleanField(default=False)
+    received = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class QueryParams(models.Model):
-    id = UUIDPrimaryKey()
-    request_log = models.ForeignKey('parrot.RequestLog', on_delete=models.CASCADE)
-    key = models.CharField(max_length=200)
-    value = models.CharField(max_length=200)
+class ReplayedRequest(models.Model):
+    request = models.OneToOneField(
+        'parrot.RequestLog', on_delete=models.CASCADE, related_name='replayed')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class CapturedRequest(models.Model):
+    request = models.OneToOneField(
+        'parrot.RequestLog', on_delete=models.CASCADE, related_name='captured')
+    response_status = models.IntegerField(null=True, blank=True)
+    response_body = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
