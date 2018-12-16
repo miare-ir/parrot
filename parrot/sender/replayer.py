@@ -25,15 +25,13 @@ def _replay_batch(logs: Iterable[RequestLog]):
         raise KeyError('PARROT_LISTENER_HOST should be set in settings')
     path = reverse('{}:bulk-request-view'.format(settings.PARROT_NAMESPACE))
     url = '{}{}'.format(settings.PARROT_LISTENER_HOST, path)
-    response = requests.post(url, body)
+    response = requests.post(url, json=body)
     response.raise_for_status()
-    replayed_requests = [ReplayedRequest.objects.create(request=l) for l in logs]
+    replayed_requests = [ReplayedRequest(request_id=str(l.id)) for l in logs]
     ReplayedRequest.objects.bulk_create(replayed_requests)
 
 
 def replay():
-    pending = list(
-        RequestLog.objects.filter(replayed=None).order_by('created_at')[:_get_batch_size()]
-    )
+    pending = list(RequestLog.objects.filter(replayed=None).order_by('created_at'))
     for chunk in _chunks(pending, _get_batch_size()):
         _replay_batch(chunk)
