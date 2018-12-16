@@ -1,0 +1,42 @@
+image: python:3.7
+
+cache:
+  paths:
+  - "$CI_PROJECT_DIR/pip-cache"
+  key: "$CI_PROJECT_ID"
+
+
+variables:
+  # Django envs
+  DEBUG: "True"  # Double quotation is necessary or gitlab will consider the yaml as invalid
+  SECRET_KEY: thisisastrongsecretkeyiknow
+  POS_DB_DEFAULT_NAME: miarepos
+  POS_DB_DEFAULT_USER: miareadmin
+  POS_DB_DEFAULT_PASSWORD: miareadmin
+  POS_DB_DEFAULT_HOST: postgres
+  POS_DB_DEFAULT_PORT: 5432
+
+  # Postgres envs
+  POSTGRES_DB: miarepos
+  POSTGRES_USER: miareadmin
+  POSTGRES_PASSWORD: miareadmin
+  POSTGRES_HOST: 0.0.0.0
+  POSTGRES_PORT: 5432
+
+
+stages:
+- test
+
+test:
+  stage: offline_test
+  script:
+  - apt-get update
+  - apt-get install -y binutils libproj-dev python3-pip
+  - pip3 install virtualenv
+  - rm -rf venv/miare-env
+  - virtualenv -p python3 venv/miare-env
+  - . venv/miare-env/bin/activate
+  - pip3 install -r requirements.txt
+  - flake8
+  - cd src
+  - python3 manage.py test -v 3
